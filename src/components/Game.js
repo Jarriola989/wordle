@@ -107,7 +107,7 @@ const Game = () => {
             let updatedGuesses = JSON.parse(JSON.stringify(attempts));;
             let updatedKeyboard = {...keyboard};
 
-            currentGuess.map((letter, i) => {
+            currentGuess.forEach((letter, i) => {
                 if(letter.toLowerCase() === wordle.charAt(i)) {
                     updateLetterState(updatedGuesses[currentAttempt-1][i], KeyStates.EXACT_MATCH)
                     updateKeyboard(letter, updatedKeyboard, KeyStates.EXACT_MATCH)
