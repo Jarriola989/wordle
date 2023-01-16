@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import WordGuesses from './WordGuesses';
 import Keyboard from './Keyboard';
-import GameWon from './GameWon';
+import GameResult from './GameResult';
 import { emptyGuessBoxes, 
     LetterGuess,
     KeyStates,
@@ -11,7 +11,8 @@ import { emptyGuessBoxes,
     GAME_ID,
     PLAYER_DATA,
     DAILY_MS,
-    RandomWordGeneratorAPI } from '../common'
+    RandomWordGeneratorAPI, 
+    MAX_GUESS_ATTEMPTS} from '../common'
 
 const Game = () => {
     const [state, setState] = useState(
@@ -19,7 +20,8 @@ const Game = () => {
         attempts: emptyGuessBoxes,
         currentAttempt: 1, // up to 6 attempts
         keyboard: keyboard,
-        isGameWon: false});
+        isGameWon: false,
+        isGameLost: false});
     const [wordle, setWordle] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
 
@@ -121,12 +123,15 @@ const Game = () => {
             });
 
             let updatedGameWon = currentGuess.join('').toLowerCase() === wordle.toLowerCase();
+            let updatedGameLost = currentAttempt === MAX_GUESS_ATTEMPTS && !updatedGameWon ? true : false;
             const updatedState = {...state, 
                 currentGuess: [], 
                 attempts: updatedGuesses, 
                 currentAttempt: currentAttempt+1, 
                 keyboard: updatedKeyboard,
-                isGameWon: updatedGameWon}
+                isGameWon: updatedGameWon,
+                isGameLost: updatedGameLost
+            }
             localStorage.setItem(PLAYER_DATA, JSON.stringify(updatedState))
             setState(updatedState)
         }
@@ -138,7 +143,7 @@ const Game = () => {
 
     return(
         <div className="game">
-            {state.isGameWon ? <GameWon wordle={wordle} /> : null}
+            {state.isGameWon || state.isGameLost ? <GameResult wordle={wordle} gameWon={state.isGameWon} /> : null}
             <WordGuesses attempts={state.attempts} errorMsg={errorMsg} clearErrorMsg={clearErrorMsg} currentAttemptNum={state.currentAttempt}/>
             <Keyboard addLetter={addLetter} keyboard={state.keyboard} />
             <div className="buttons">
